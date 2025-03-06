@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg"
+    tools:context=".MainActivity">
+
+
+    <FrameLayout
+        android:id="@+id/frame_bar"
+        android:layout_width="600dp"
+        android:layout_height="340dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/btn">
+
+        <GridLayout
+            android:id="@+id/slot_grid"
+            android:layout_width="554dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:alignmentMode="alignMargins"
+            android:columnCount="5"
+            android:rowCount="3">
+
+            <com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling
+                android:id="@+id/image"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_row="0"
+                android:layout_column="0"
+                android:layout_gravity="center" />
+
+            <com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling
+                android:id="@+id/image2"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_row="0"
+                android:layout_column="1"
+                android:layout_gravity="center"
+ />
+
+            <com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling
+                android:id="@+id/image3"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_row="0"
+                android:layout_column="2"
+                android:layout_gravity="center" />
+
+            <com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling
+                android:id="@+id/image4"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_row="1"
+                android:layout_column="0"
+                android:layout_gravity="center" />
+
+            <com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling
+                android:id="@+id/image5"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_row="1"
+                android:layout_column="1"
+                android:layout_gravity="center" />
+
+            <com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling
+                android:id="@+id/image6"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_row="1"
+                android:layout_column="2"
+                android:layout_gravity="center" />
+
+            <com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling
+                android:id="@+id/image7"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_row="2"
+                android:layout_column="0"
+                android:layout_gravity="center" />
+
+            <com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling
+                android:id="@+id/image8"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_row="2"
+                android:layout_column="1"
+                android:layout_gravity="center" />
+
+            <com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling
+                android:id="@+id/image9"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_row="2"
+                android:layout_column="2"
+                android:layout_gravity="center" />
+
+            <com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling
+                android:id="@+id/image10"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_row="0"
+                android:layout_column="3"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop" />
+
+            <com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling
+                android:id="@+id/image11"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_row="1"
+                android:layout_column="3"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop" />
+
+            <com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling
+                android:id="@+id/image12"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_row="2"
+                android:layout_column="3"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop" />
+
+            <com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling
+                android:id="@+id/image13"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_row="0"
+                android:layout_column="4"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop" />
+
+            <com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling
+                android:id="@+id/image14"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_row="1"
+                android:layout_column="4"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop" />
+
+            <com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling
+                android:id="@+id/image15"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_row="2"
+                android:layout_column="4"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop" />
+
+        </GridLayout>
+
+
+    </FrameLayout>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/menu_background"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="2dp">
+
+        <!-- колво Линий -->
+<!--        <LinearLayout-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_weight="1"-->
+<!--            android:gravity="center"-->
+<!--            android:orientation="vertical">-->
+
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="ЛИНИИ"-->
+<!--                android:textColor="#FFF"-->
+<!--                android:textSize="14sp" />-->
+
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="20"-->
+<!--                android:textColor="#FFF"-->
+<!--                android:textSize="18sp"-->
+<!--                android:textStyle="bold" />-->
+<!--        </LinearLayout>-->
+
+        <!-- Стоимость -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="СТОИМОСТЬ"
+                android:textColor="#FFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.10 €"
+                android:textColor="#FFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Ставка -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="СТАВКА"
+                android:textColor="#FFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2.00 €"
+                android:textColor="#FFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Кнопка Max Bet и Spin -->
+        <LinearLayout
+            android:layout_width="10dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <!-- Кнопка Max Bet -->
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:padding="10dp"
+                android:text="MAX BET"
+                android:textColor="#FFF"
+                android:textStyle="bold" />
+
+            <!-- Кнопка Spin -->
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:background="@drawable/spin"
+                android:id="@+id/btn_up"
+                android:padding="10dp"
+
+                android:text="SPIN"
+                android:textColor="#FFF"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Выигрыш -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ВЫИГРЫШ"
+                android:textColor="#FFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.00 €"
+                android:textColor="#FFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Баланс -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="БАЛАНС"
+                android:textColor="#FFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/txt_score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1000$"
+                android:textColor="#FFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </LinearLayout>
+    <!--добавить btn down frame -->
+
+</RelativeLayout>
