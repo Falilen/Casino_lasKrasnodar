@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
 //    }
 //    else
 //    {
-//        Toast.makeText(this, "Проигрыш", Toast.LENGTH_SHORT).show();
+//        111111Toast.makeText(this, "Проигрыш", Toast.LENGTH_SHORT).show();
 //
 //    }
 //}
