@@ -1,6 +1,7 @@
 package com.example.casinolaskrasnodar.ImageViewScrolling;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -20,7 +21,9 @@ import java.util.Random;
 
 public class ImageViewScrolling extends FrameLayout {
 
-    private static int ANIMATION_DUR = 120;
+
+    private boolean isAnimating = false;
+    private static int ANIMATION_DUR = 100;
     ImageView current_image, next_image;
 
     int lat_result = 0,old_value = 0;
@@ -51,57 +54,51 @@ public class ImageViewScrolling extends FrameLayout {
 }
 
     public void SetValueRandom(int rotate_count) {
-        // Генерация случайных изображений для прокрутки
+        if (isAnimating) return;
+        isAnimating = true;
+
         Random random = new Random();
         int image = random.nextInt(6);
-        current_image.setVisibility(View.VISIBLE);// Случайное изображение
 
-        // Убираем текущую картинку вниз (она уходит с экрана)
-        current_image.animate().translationY(getHeight())
+        // Скрыть next_image перед началом анимации
+        next_image.setVisibility(View.INVISIBLE);
+        current_image.setVisibility(View.VISIBLE);
+
+        // Анимация текущего изображения вниз
+        current_image.animate()
+                .translationY(getHeight())
                 .setDuration(ANIMATION_DUR)
-                .withEndAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        // После завершения анимации, картинка обновляется
-                        setImage(current_image, image);
-                        current_image.setTranslationY(0); // Возвращаем картинку в исходное положение
-                    }
+                .withEndAction(() -> {
+                    // После завершения анимации:
+                    current_image.setVisibility(View.INVISIBLE); // Скрыть текущее
+                    setImage(current_image, image); // Обновить изображение
+                    current_image.setTranslationY(0);
                 })
                 .start();
 
-        // Показываем следующую картинку, которая идет сверху
-        next_image.setTranslationY(-next_image.getHeight()); // Ставим новую картинку за экраном (сверху)
-        setImage(next_image, random.nextInt(6)); // Устанавливаем случайную картинку
+        // Настройка следующего изображения
+        next_image.setTranslationY(-next_image.getHeight());
+        setImage(next_image, random.nextInt(6));
+        next_image.setVisibility(View.VISIBLE); // Показать следующее
 
-        next_image.animate().translationY(0)
+        // Анимация следующего изображения вверх
+        next_image.animate()
+                .translationY(0)
                 .setDuration(ANIMATION_DUR)
-                .setListener(new Animator.AnimatorListener() {
+                .setListener(new AnimatorListenerAdapter() {
                     @Override
-                    public void onAnimationStart(@NonNull Animator animation) {
-                        // Ничего не делаем при старте анимации
-                    }
+                    public void onAnimationEnd(Animator animation) {
+                        next_image.setVisibility(View.INVISIBLE); // Скрыть следующее
+                        current_image.setVisibility(View.VISIBLE); // Показать обновленное текущее
+                        isAnimating = false;
 
-                    @Override
-                    public void onAnimationEnd(@NonNull Animator animation) {
                         if (old_value < rotate_count - 1) {
                             old_value++;
-                            SetValueRandom(rotate_count); // Продолжаем анимацию
+                            SetValueRandom(rotate_count);
                         } else {
-                            // Завершаем анимацию
                             old_value = 0;
                             eventEnd.eventEnd(image, rotate_count);
-                            current_image.setVisibility(View.GONE);// Сообщаем о завершении
                         }
-                    }
-
-                    @Override
-                    public void onAnimationCancel(@NonNull Animator animation) {
-                        // Ничего не делаем при отмене анимации
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(@NonNull Animator animation) {
-                        // Ничего не делаем при повторе
                     }
                 })
                 .start();
@@ -125,26 +122,41 @@ public class ImageViewScrolling extends FrameLayout {
 
 
     private void setImage(ImageView imageView, int value) {
-        if(value== Util.BAR)
+        imageView.setVisibility(View.VISIBLE);
+
+        if (value == Util.BAR) {
             imageView.setImageResource(R.drawable.b2);
-        else if (value == Util.SEVEN)
+        } else if (value == Util.SEVEN) {
             imageView.setImageResource(R.drawable.b1);
-        else if (value == Util.LEMON)
+        } else if (value == Util.LEMON) {
             imageView.setImageResource(R.drawable.b3);
-        else if (value == Util.ORANGE)
+        } else if (value == Util.ORANGE) {
             imageView.setImageResource(R.drawable.b4);
-        else if (value == Util.TRIPLE)
+        } else if (value == Util.TRIPLE) {
             imageView.setImageResource(R.drawable.b5);
-
-        else
+        } else {
             imageView.setImageResource(R.drawable.b6);
-
-
-        imageView.setTag(value);
-        lat_result=value;
         }
 
-    public int getValue(){
-    return Integer.parseInt(next_image.getTag().toString());
+        imageView.setTag(value);
+        lat_result = value;
     }
+
+    public int getValue() {
+        // Возвращаем значение из current_image, а не next_image
+        if (current_image.getTag() != null) {
+            return Integer.parseInt(current_image.getTag().toString());
+        }
+        return -1; // Значение по умолчанию при ошибке
+    }
+
+
+    public void reset() {
+        current_image.setVisibility(View.INVISIBLE);
+        next_image.setVisibility(View.INVISIBLE);
+        current_image.setTranslationY(0);
+        next_image.setTranslationY(0);
+    }
+
+
 }
