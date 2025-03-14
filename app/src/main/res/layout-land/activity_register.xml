@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:background="#FF0F1A3D"
+    android:padding="24dp"
+    android:gravity="center_horizontal"
+    tools:context=".AuthService">
+
+    <!-- Заголовок -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Регистрация"
+        android:textColor="#FFFFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="48dp"/>
+
+    <!-- Поле Email -->
+    <FrameLayout
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/edittext_background">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="E-mail"
+            android:inputType="textEmailAddress"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#80FFFFFF"
+            android:background="@null"
+            android:padding="16dp"
+            android:gravity="left"
+            android:id="@+id/email_input"
+
+            />
+
+    </FrameLayout>
+
+    <!-- Поле Пароля -->
+    <FrameLayout
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/edittext_background"
+
+        >
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Пароль"
+            android:textColor="#FFFFFFFF"
+            android:textColorHint="#80FFFFFF"
+            android:inputType="textPassword"
+            android:background="@null"
+            android:padding="16dp"
+            android:gravity="left"
+            android:id="@+id/password_input"/>
+    </FrameLayout>
+
+    <!-- Кнопка -->
+    <Button
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:text="Зарегистрироваться/Войти"
+        android:backgroundTint="#FFFF5722"
+        android:textColor="#FFFFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:paddingVertical="16dp"
+        android:id="@+id/register_button"/>
+
+</LinearLayout>

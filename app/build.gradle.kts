@@ -34,20 +34,18 @@ android {
 dependencies {
 
 
-    implementation (libs.postgrest.kt) // Для REST API
-    implementation (libs.ktor.client.okhttp) // HTTP-клиент
+
     implementation (libs.gson) // JSON-парсинг
 
-    implementation ("io.ktor:ktor-io:2.3.3")
-    implementation ("com.supabase:postgrest-kt:1.2.0")
-    implementation ("io.ktor:ktor-client-core:2.3.3")
-    implementation ("io.ktor:ktor-client-okhttp:2.3.3")
-    implementation ("io.ktor:ktor-client-content-negotiation:2.3.3")
-    implementation ("io.ktor:ktor-serialization-gson:2.3.3")
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation ("com.google.code.gson:gson:2.10.1")
 
+    // OkHttp
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+// Добавьте зависимость для Supabase Auth
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:2.2.3")
+    implementation("io.github.jan-tennert.supabase:gotrue-kt:2.2.3")
+
+
+    implementation ("com.google.android.material:material:1.11.0")
 
     implementation (libs.material.v190)
 

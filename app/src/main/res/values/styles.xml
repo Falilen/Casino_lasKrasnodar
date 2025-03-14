@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Основная тема приложения -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Цвета -->
+        <item name="colorPrimary">#FF0F1A3D</item>    <!-- Темно-синий (как в вашем фоне) -->
+        <item name="colorPrimaryDark">#FF0A1229</item> <!-- Более темный оттенок -->
+        <item name="colorAccent">#FFFF5722</item>      <!-- Оранжевый (как у кнопки) -->
+    </style>
+</resources>
