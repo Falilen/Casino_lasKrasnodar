@@ -1,7 +1,7 @@
 
 # LasCrasnodar Casino 🎰♠️ [Android]
 
-![Banner](https://via.placeholder.com/1200x600.png?text=LasCrasnodar+Mobile+Casino+Preview)  
+![Banner](https://imgur.com/a/8rkabby)  
 **Ваш карманный азарт!** Играйте в слоты и блэкджек в любое время и в любом месте.  
 *Только для развлечения — без реальных ставок!*
 
