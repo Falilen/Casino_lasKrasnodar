@@ -37,7 +37,7 @@
 ### Сборка из исходного кода:
 1. Клонируйте репозиторий:
    ```bash
-   git clone https://github.com/yourusername/las-crasnodar-android.git
+   git clone https://github.com/Falilen/Casino_lasKrasnodar
 
     Откройте проект в Android Studio (версия Arctic Fox+)
 
