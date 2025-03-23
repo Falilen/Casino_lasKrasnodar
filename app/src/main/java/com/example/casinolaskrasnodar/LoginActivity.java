@@ -1,0 +1,116 @@
+package com.example.casinolaskrasnodar;
+
+import static android.opengl.ETC1.isValid;
+
+import android.content.Intent;
+import android.os.Build;
+import android.os.Bundle;
+import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+// LoginActivity.java
+public class LoginActivity extends AppCompatActivity {
+    private SupabaseManager supabaseManager;
+    private EditText emailInput, passwordInput;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+        hideSystemUI();
+        setupUI();
+        supabaseManager = new SupabaseManager();
+    }
+
+    private void setupUI() {
+        emailInput = findViewById(R.id.email_input);
+        passwordInput = findViewById(R.id.password_input);
+        Button loginButton = findViewById(R.id.login_button);
+        TextView registerLink = findViewById(R.id.register_link);
+
+        // Переход на регистрацию
+        registerLink.setOnClickListener(v -> {
+            startActivity(new Intent(this, RegisterActivity.class));
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        });
+
+        // Обработка входа
+        loginButton.setOnClickListener(v -> {
+            String email = emailInput.getText().toString().trim();
+            String password = passwordInput.getText().toString().trim();
+
+            if (isValid(email, password)) {
+                processLogin(email, password);
+            } else {
+                showToast("Неверный email или пароль");
+            }
+        });
+    }
+
+
+    private void processLogin(String email, String password) {
+        supabaseManager.signInWithEmail(email, password, new SupabaseManager.SupabaseCallback() {
+            @Override
+            public void onSuccess(String response) {
+                runOnUiThread(() -> {
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                runOnUiThread(() -> showError("Ошибка: " + e.getMessage()));
+            }
+        });
+    }
+
+    private void showError(String message) {
+        new AlertDialog.Builder(this)
+                .setTitle("Ошибка")
+                .setMessage(message)
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    private boolean isValid(String email, String password) {
+        return email.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")
+                && password.length() >= 8
+                && password.matches(".*\\d.*");
+    }
+
+    // LoginActivity.java
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public void hideSystemUI() {
+        View decorView = getWindow().getDecorView();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            getWindow().setDecorFitsSystemWindows(false);
+            WindowInsetsController controller = decorView.getWindowInsetsController();
+            if (controller != null) {
+                controller.hide(WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+                controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+            }
+        } else {
+            decorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
+                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                            View.SYSTEM_UI_FLAG_FULLSCREEN
+            );
+        }
+    }
+
+}
