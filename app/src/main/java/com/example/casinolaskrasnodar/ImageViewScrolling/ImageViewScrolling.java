@@ -24,7 +24,8 @@ public class ImageViewScrolling extends FrameLayout {
 
     private boolean isAnimating = false;
     private static int ANIMATION_DUR = 100;
-    ImageView current_image, next_image;
+    public ImageView current_image;
+    ImageView next_image;
 
     int lat_result = 0,old_value = 0;
 
@@ -49,7 +50,9 @@ public class ImageViewScrolling extends FrameLayout {
         current_image = (ImageView)getRootView().findViewById(R.id.current_image);
         next_image = (ImageView)getRootView().findViewById(R.id.next_image);
 
-        next_image.setTranslationY(getHeight());
+        getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            next_image.setTranslationY(getHeight());
+        });
 
 }
 

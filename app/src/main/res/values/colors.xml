@@ -7,5 +7,6 @@
     <color name="bg">#25003a</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="blue">#1FF5FF</color>
+    <color name="gray">#7B2D3131</color>
 
 </resources>

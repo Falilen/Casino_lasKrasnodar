@@ -1,19 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape android:shape="rectangle" xmlns:android="http://schemas.android.com/apk/res/android">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Фон кнопки -->
-    <solid android:color="@color/bg"/> <!-- Оранжевый цвет, можно изменить -->
+    <!-- Базовый слой - тёмный фон -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp"/>
+            <solid android:color="#1A1D28"/>
+        </shape>
+    </item>
 
-    <!-- Скругленные углы -->
-    <corners android:radius="12dp"/>
+    <!-- Второй слой - градиентная подсветка -->
+    <item android:top="2dp" android:bottom="2dp" android:left="2dp" android:right="2dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="14dp"/>
+            <gradient
+                android:type="linear"
+                android:angle="315"
+                android:startColor="#2A2E40"
+                android:endColor="#181A25"/>
+        </shape>
+    </item>
 
-    <!-- Толщина границы -->
-    <stroke android:width="10dp" android:color="@color/black"/> <!-- Граница чуть темнее фона -->
+    <!-- Третий слой - золотая окантовка -->
+    <item android:bottom="4dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="14dp"/>
+            <stroke
+                android:width="2dp"
+                android:color="#C5A467"/>
+        </shape>
+    </item>
 
-    <!-- Отступы внутри кнопки -->
-    <padding
-        android:left="10dp"
-        android:top="10dp"
-        android:right="10dp"
-        android:bottom="10dp"/>
-</shape>
+</layer-list>

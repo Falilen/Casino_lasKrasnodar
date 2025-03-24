@@ -1,10 +1,20 @@
 package com.example.casinolaskrasnodar;
 
+import static android.view.View.VISIBLE;
+
+import static androidx.constraintlayout.widget.ConstraintSet.GONE;
+
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,12 +27,18 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.casinolaskrasnodar.ImageViewScrolling.IEventEnd;
 import com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements IEventEnd {
+
+
+    private WinLineView winLineView;
+    private List<int[][]> currentWinningLines = new ArrayList<>();
 
     // UI элементы
     private Button btnSpin;
@@ -64,10 +80,27 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+        winLineView = findViewById(R.id.winLineView);
+        setupSlotDimensions();
         hideSystemUI();
 
         initViews();
         setupSpinButton();
+    }
+
+
+    private void setupSlotDimensions() {
+        findViewById(R.id.frame_bar).getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        FrameLayout frame = findViewById(R.id.frame_bar);
+                        int width = frame.getWidth() / 5;
+                        int height = frame.getHeight() / 3;
+                        winLineView.setCellSize(width, height);
+                        frame.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    }
+                });
     }
 
     private void initViews() {
@@ -98,6 +131,14 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
     }
 
     private void startSpin() {
+
+        winLineView.animate()
+                .alpha(0f)
+                .setDuration(200)
+                .withEndAction(() -> winLineView.setVisibility(View.GONE))
+                .start();
+
+
         // Блокируем кнопку на время анимации
         btnSpin.setEnabled(false);
         Common.SCORE -= SPIN_COST;
@@ -135,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
     }
 
     private void checkWin(int[][] grid) {
+        currentWinningLines.clear();
         int totalWin = 0;
 
         for(int[][] line : WIN_LINES) {
@@ -142,16 +184,52 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
             if(matched >= 3) {
                 totalWin += PAY_TABLE.get(matched);
                 logWinningLine(line, grid);
+                currentWinningLines.add(line);
             }
         }
 
         if(totalWin > 0) {
+            showWinAnimations();
             Common.SCORE += totalWin;
             txtScore.setText(String.valueOf(Common.SCORE) + "$");
             Toast.makeText(this, "Выигрыш: $" + totalWin, Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(this, "Попробуйте ещё раз", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void showWinAnimations() {
+
+        winLineView.startBlinkAnimation();
+        // Анимация линий
+        winLineView.setWinningLines(currentWinningLines);
+        winLineView.setVisibility(VISIBLE);
+        winLineView.animate()
+                .alpha(1f)
+                .setDuration(500)
+                .start();
+
+        // Анимация символов
+        animateWinningSymbols();
+    }
+
+    private void animateWinningSymbols() {
+        for(int[][] line : currentWinningLines) {
+            for(int[] pos : line) {
+                int index = pos[0]*5 + pos[1];
+                ImageViewScrolling slot = slots[index];
+                animateSlot(slot.current_image);
+            }
+        }
+    }
+
+    private void animateSlot(ImageView symbol) {
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(symbol, "scaleX", 1f, 1.2f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(symbol, "scaleY", 1f, 1.2f, 1f);
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(scaleX, scaleY);
+        set.setDuration(500);
+        set.start();
     }
 
     private int checkLine(int[][] grid, int[][] line) {
@@ -200,4 +278,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
+
+
+
 }

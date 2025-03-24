@@ -15,7 +15,7 @@
         android:theme="@style/Theme.CasinoLasKrasnodar"
         tools:targetApi="31">
         <activity
-            android:name=".RegisterActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:screenOrientation="landscape">
             <intent-filter>
@@ -24,7 +24,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"
+        <activity android:name=".RegisterActivity"
             android:screenOrientation="landscape"/>
         <activity android:name=".LoginActivity"
             android:screenOrientation="landscape"/>
