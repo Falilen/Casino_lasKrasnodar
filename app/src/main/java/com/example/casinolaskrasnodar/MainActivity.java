@@ -4,6 +4,7 @@ import static android.view.View.VISIBLE;
 
 import static androidx.constraintlayout.widget.ConstraintSet.GONE;
 
+import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
@@ -40,6 +41,11 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
     private WinLineView winLineView;
     private List<int[][]> currentWinningLines = new ArrayList<>();
 
+
+
+    private List<AnimatorSet> activeAnimations = new ArrayList<>();
+
+
     // UI элементы
     private Button btnSpin;
     private TextView txtScore;
@@ -53,6 +59,19 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
     private final int TOTAL_SLOTS = 15;
     private final int SPIN_COST = 50;
 
+
+
+    // Добавьте в начало класса
+    private static final int[][] SLOT_MAP = {
+            // Ряд 0 (верхний)
+            {0, 1, 2, 9, 12},  // Индексы 0,1,2,9,12 → колонки 0-4
+
+            // Ряд 1 (средний)
+            {3, 4, 5, 10, 13}, // Индексы 3,4,5,10,13 → колонки 0-4
+
+            // Ряд 2 (нижний)
+            {6, 7, 8, 11, 14}  // Индексы 6,7,8,11,14 → колонки 0-4
+    };
     // Выигрышные линии
     private final int[][][] WIN_LINES = {
             // Горизонтальные
@@ -196,6 +215,8 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
 
     private void startSpin() {
 
+        stopAnimations(); // Добавить в начало метода
+
         winLineView.animate()
                 .alpha(0f)
                 .setDuration(200)
@@ -247,9 +268,12 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
         for(int[][] line : WIN_LINES) {
             int matched = checkLine(grid, line);
             if(matched >= 3) {
+                // Берем только совпавшую часть линии
+                int[][] winningPart = Arrays.copyOf(line, matched);
+                currentWinningLines.add(winningPart);
+
                 totalWin += PAY_TABLE.get(matched);
-                logWinningLine(line, grid);
-                currentWinningLines.add(line);
+                logWinningLine(winningPart, grid);
             }
         }
 
@@ -282,43 +306,82 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
     private void animateWinningSymbols() {
         for(int[][] line : currentWinningLines) {
             for(int[] pos : line) {
-                int index = pos[0]*5 + pos[1];
-                ImageViewScrolling slot = slots[index];
-                animateSlot(slot.current_image);
-
+                int realIndex = getRealIndex(pos[0], pos[1]);
+                if(realIndex != -1 && realIndex < slots.length) {
+                    Log.d("ANIM_DEBUG", "Animating: " + realIndex);
+                    animateSlot(slots[realIndex].current_image);
+                }
             }
         }
     }
+    private int getRealIndex(int row, int col) {
+        if(row >= 0 && row < 3 && col >= 0 && col < 5) {
+            return SLOT_MAP[row][col];
+        }
+        return -1; // Ошибка
+    }
 
     private void animateSlot(ImageView symbol) {
+        if(symbol == null) return;
+
+        // Отмена предыдущих анимаций
+        symbol.animate().cancel();
+        symbol.setScaleX(1f);
+        symbol.setScaleY(1f);
+
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(symbol, "scaleX", 1f, 1.2f, 1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(symbol, "scaleY", 1f, 1.2f, 1f);
 
-        scaleX.setRepeatCount(ValueAnimator.INFINITE); // Бесконечное повторение
-        scaleX.setRepeatMode(ValueAnimator.RESTART);   // Режим повтора
-
-        scaleY.setRepeatCount(ValueAnimator.INFINITE);
-        scaleY.setRepeatMode(ValueAnimator.RESTART);
-
         AnimatorSet set = new AnimatorSet();
         set.playTogether(scaleX, scaleY);
-        set.setDuration(2000);
+        set.setDuration(500);
+        set.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                activeAnimations.remove(animation);
+            }
+            @Override public void onAnimationStart(Animator animation) {}
+            @Override public void onAnimationCancel(Animator animation) {}
+            @Override public void onAnimationRepeat(Animator animation) {}
+        });
+
+        activeAnimations.add(set);
         set.start();
     }
+
+
+    private void stopAnimations() {
+        // Останавливаем все активные анимации
+        for (AnimatorSet animator : activeAnimations) {
+            if (animator != null && animator.isRunning()) {
+                animator.cancel();
+            }
+        }
+        activeAnimations.clear();
+
+        // Сбрасываем состояние всех изображений
+        for(ImageViewScrolling slot : slots) {
+            if(slot != null && slot.current_image != null) {
+                slot.current_image.setScaleX(1f);
+                slot.current_image.setScaleY(1f);
+            }
+        }
+
+        // Сбрасываем линии выигрыша
+        winLineView.clearAnimation();
+        winLineView.setVisibility(View.GONE);
+    }
+
 
     private int checkLine(int[][] grid, int[][] line) {
         int firstSymbol = grid[line[0][0]][line[0][1]];
         int count = 1;
 
         for(int i = 1; i < line.length; i++) {
-            int currentSymbol = grid[line[i][0]][line[i][1]];
-            if(currentSymbol == firstSymbol) {
-                count++;
-            } else {
-                break;
-            }
+            if(grid[line[i][0]][line[i][1]] != firstSymbol) break;
+            count++;
         }
-        return count;
+        return count >= 3 ? count : 0;
     }
 
     private void logSlotGrid(int[][] grid) {
@@ -352,6 +415,8 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
+
+
 
 
 
