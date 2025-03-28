@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
     // UI элементы
     private Button btnSpin;
     private TextView txtScore;
+    private TextView txtWin;
 
     // Слоты (3 ряда x 5 колонок)
     private ImageViewScrolling[] slots = new ImageViewScrolling[15];
@@ -77,15 +78,77 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
+
+
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+
+
+
         winLineView = findViewById(R.id.winLineView);
         setupSlotDimensions();
         hideSystemUI();
 
         initViews();
         setupSpinButton();
+
+
+
+        View sideMenu = findViewById(R.id.side_menu);
+        View overlay = findViewById(R.id.overlay);
+
+
+        // Показываем меню правильно
+        findViewById(R.id.btn_menu).setOnClickListener(v -> {
+            sideMenu.setVisibility(View.VISIBLE);
+            sideMenu.animate()
+                    .alpha(1f)
+                    .setDuration(200)
+                    .start();
+
+            overlay.setVisibility(View.VISIBLE);
+            overlay.animate()
+                    .alpha(0.7f)
+                    .setDuration(200)
+                    .start();
+        });
+
+        // Скрытие меню
+        overlay.setOnClickListener(v -> {
+            sideMenu.animate()
+                    .alpha(0f)
+                    .setDuration(200)
+                    .withEndAction(() -> sideMenu.setVisibility(View.INVISIBLE))
+                    .start();
+
+            overlay.animate()
+                    .alpha(0f)
+                    .setDuration(200)
+                    .withEndAction(() -> overlay.setVisibility(View.GONE))
+                    .start();
+        });
+
+        // В MainActivity
+        findViewById(R.id.menu_slots).setOnClickListener(v -> {
+            // Обработка перехода к слотам
+        });
+
+        findViewById(R.id.menu_blackjack).setOnClickListener(v -> {
+            // Обработка перехода к блэкджеку
+        });
+
+        findViewById(R.id.menu_settings).setOnClickListener(v -> {
+            // Обработка перехода к настройкам
+        });
+
+        findViewById(R.id.menu_exit).setOnClickListener(v -> {
+            finish();
+        });
+
     }
 
 
@@ -106,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
     private void initViews() {
         btnSpin = findViewById(R.id.btn_up);
         txtScore = findViewById(R.id.txt_score);
+        txtWin =  findViewById(R.id.txt_win);
 
         // Инициализация всех слотов
         int[] slotIds = {
@@ -138,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
                 .withEndAction(() -> winLineView.setVisibility(View.GONE))
                 .start();
 
+        txtWin.setText("0" + "$");
 
         // Блокируем кнопку на время анимации
         btnSpin.setEnabled(false);
@@ -191,6 +256,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
         if(totalWin > 0) {
             showWinAnimations();
             Common.SCORE += totalWin;
+            txtWin.setText(totalWin + "$");
             txtScore.setText(String.valueOf(Common.SCORE) + "$");
             Toast.makeText(this, "Выигрыш: $" + totalWin, Toast.LENGTH_LONG).show();
         } else {
@@ -219,6 +285,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
                 int index = pos[0]*5 + pos[1];
                 ImageViewScrolling slot = slots[index];
                 animateSlot(slot.current_image);
+
             }
         }
     }
@@ -226,9 +293,16 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
     private void animateSlot(ImageView symbol) {
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(symbol, "scaleX", 1f, 1.2f, 1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(symbol, "scaleY", 1f, 1.2f, 1f);
+
+        scaleX.setRepeatCount(ValueAnimator.INFINITE); // Бесконечное повторение
+        scaleX.setRepeatMode(ValueAnimator.RESTART);   // Режим повтора
+
+        scaleY.setRepeatCount(ValueAnimator.INFINITE);
+        scaleY.setRepeatMode(ValueAnimator.RESTART);
+
         AnimatorSet set = new AnimatorSet();
         set.playTogether(scaleX, scaleY);
-        set.setDuration(500);
+        set.setDuration(2000);
         set.start();
     }
 
