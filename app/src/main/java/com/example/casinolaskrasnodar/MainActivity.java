@@ -8,6 +8,7 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -18,7 +19,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.example.casinolaskrasnodar.SupabaseManager;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -37,6 +38,8 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements IEventEnd {
 
+
+    private SupabaseManager supabaseManager;
 
     private WinLineView winLineView;
     private List<int[][]> currentWinningLines = new ArrayList<>();
@@ -98,8 +101,8 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-
-
+        supabaseManager = new SupabaseManager();
+        checkAuth();
 
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
@@ -229,6 +232,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
         btnSpin.setEnabled(false);
         Common.SCORE -= SPIN_COST;
         txtScore.setText(String.valueOf(Common.SCORE) + "$");
+        updateBalanceOnServer(Common.SCORE);
 
         // Генерируем общее количество вращений
         int spinCount = 5 + new Random().nextInt(5);
@@ -280,6 +284,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
         if(totalWin > 0) {
             showWinAnimations();
             Common.SCORE += totalWin;
+            updateBalanceOnServer(Common.SCORE);
             txtWin.setText(totalWin + "$");
             txtScore.setText(String.valueOf(Common.SCORE) + "$");
             Toast.makeText(this, "Выигрыш: $" + totalWin, Toast.LENGTH_LONG).show();
@@ -414,6 +419,34 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
                         | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    private void updateBalanceOnServer(int newBalance) {
+        supabaseManager.updateUserBalance(Common.AUTH_TOKEN, newBalance, new SupabaseManager.SupabaseCallback() {
+            @Override
+            public void onSuccess(String response) {
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "Баланс обновлен", Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "Ошибка обновления: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
+            }
+        });
+    }
+
+
+
+    private void checkAuth() {
+        if (Common.AUTH_TOKEN == null) {
+            Log.e("AuthCheck", "User not authenticated, redirecting...");
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+        }
     }
 
 

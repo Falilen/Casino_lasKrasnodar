@@ -2,10 +2,12 @@
 package com.example.casinolaskrasnodar;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Base64;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -27,6 +29,8 @@ public class SupabaseManager {
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     private final OkHttpClient client = new OkHttpClient();
+
+
 
     public void createUser(String email, long balance,String authId, SupabaseCallback callback) {
         String json = String.format(
@@ -216,6 +220,7 @@ public class SupabaseManager {
                         mainHandler.post(() -> {
                             supabaseCallback.onSuccess(userData); // Выполняется в UI потоке
                         });
+
                     } else {
                         mainHandler.post(() -> {
 
@@ -273,9 +278,9 @@ public class SupabaseManager {
 
                     if (response.isSuccessful()) {
                         String accessToken = parseAccessToken(responseBodyString); // Используем строку
-                        callback.onSuccess(accessToken);
+                        mainHandler.post(() -> callback.onSuccess(responseBodyString));
                     } else {
-                        callback.onError(new Exception("Auth error: " + responseBodyString));
+                        mainHandler.post(() -> callback.onError(new Exception("Auth failed")));
                     }
                 }
             }
@@ -298,6 +303,91 @@ public class SupabaseManager {
             return errorObj.get("message").getAsString();
         } catch (Exception e) {
             return "Ошибка сервера: " + errorBody;
+        }
+    }
+
+    private String parseAuthIdFromToken(String authToken) throws Exception {
+        try {
+            String[] parts = authToken.split("\\.");
+            if (parts.length != 3) {
+                throw new Exception("Invalid JWT format");
+            }
+
+            String payload = new String(
+                    Base64.decode(parts[1], Base64.URL_SAFE | Base64.NO_PADDING),
+                    StandardCharsets.UTF_8
+            );
+
+            JsonObject payloadJson = new Gson().fromJson(payload, JsonObject.class);
+            if (!payloadJson.has("sub")) {
+                throw new Exception("sub field missing in token");
+            }
+
+            return payloadJson.get("sub").getAsString();
+        } catch (Exception e) {
+            throw new Exception("Token parsing error: " + e.getMessage());
+        }
+    }
+
+
+    public void updateUserBalance(String authToken, int newBalance, SupabaseCallback callback) {
+        Log.d("SupabaseDebug", "Starting updateUserBalance...");
+
+        try {
+            Log.d("SupabaseDebug", "Parsing auth token...");
+            String authId = parseAuthIdFromToken(authToken);
+            Log.d("SupabaseDebug", "Parsed auth_id: " + authId);
+
+            String url = SUPABASE_URL + "rpc/update_balance";
+            Log.d("SupabaseDebug", "Final request URL: " + url);
+
+            JsonObject json = new JsonObject();
+            json.addProperty("user_auth_id", authId);
+            json.addProperty("new_balance", newBalance);
+            String jsonBody = json.toString();
+            Log.d("SupabaseDebug", "Request body: " + jsonBody);
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(RequestBody.create(json.toString(), MediaType.get("application/json")))
+                    .addHeader("apikey", API_KEY)
+                    .addHeader("Authorization", "Bearer " + API_KEY) // Используйте API_KEY для service_role
+                    .addHeader("Content-Type", "application/json")
+                    .build();
+
+            Log.d("SupabaseDebug", "Executing request...");
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.e("SupabaseDebug", "Request failed: ", e);
+                    mainHandler.post(() -> callback.onError(e));
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Log.d("SupabaseDebug", "Response received");
+                    try (ResponseBody responseBody = response.body()) {
+                        String bodyContent = responseBody != null ? responseBody.string() : "empty";
+                        Log.d("SupabaseDebug", "Response code: " + response.code());
+                        Log.d("SupabaseDebug", "Response body: " + bodyContent);
+
+                        if (response.isSuccessful()) {
+                            // Функция возвращает void, поэтому тело ответа пустое
+                            Log.i("SupabaseDebug", "Balance updated successfully");
+                            mainHandler.post(() -> callback.onSuccess("Balance updated"));
+                        } else {
+                            Log.e("SupabaseDebug", "Update failed");
+                            mainHandler.post(() -> callback.onError(new Exception("Error code: " + response.code())));
+                        }
+
+                    }
+                }
+            });
+
+        } catch (Exception e) {
+            Log.e("SupabaseDebug", "Critical error: ", e);
+            mainHandler.post(() -> callback.onError(e));
         }
     }
 }

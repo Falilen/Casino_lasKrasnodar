@@ -5,6 +5,7 @@ import static android.opengl.ETC1.isValid;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
@@ -15,6 +16,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 // LoginActivity.java
 public class LoginActivity extends AppCompatActivity {
@@ -60,18 +64,28 @@ public class LoginActivity extends AppCompatActivity {
         supabaseManager.signInWithEmail(email, password, new SupabaseManager.SupabaseCallback() {
             @Override
             public void onSuccess(String response) {
-                runOnUiThread(() -> {
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                runOnUiThread(() -> { // Обернуть в UI поток
+                    try {
+                        JsonObject json = new Gson().fromJson(response, JsonObject.class);
+                        String accessToken = json.get("access_token").getAsString();
+                        Common.AUTH_TOKEN = accessToken;
+
+                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        finish();
+
+                    } catch (Exception e) {
+                        showError("Ошибка обработки ответа: " + e.getMessage());
+                    }
                 });
             }
 
             @Override
             public void onError(Exception e) {
-                runOnUiThread(() -> showError("Ошибка: " + e.getMessage()));
+                runOnUiThread(() -> showError("Ошибка входа: " + e.getMessage())); // UI поток
             }
         });
     }
+
 
     private void showError(String message) {
         new AlertDialog.Builder(this)
