@@ -2,6 +2,7 @@ package com.example.casinolaskrasnodar;
 
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -35,11 +37,14 @@ public class RegisterActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
         hideSystemUI();
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_register);
+
         supabaseManager = new SupabaseManager();
         setupUI();
+
     }
 
     private void setupUI() {
@@ -177,7 +182,7 @@ public class RegisterActivity extends AppCompatActivity {
             public void onSuccess(String authResponse) {
                 runOnUiThread(() -> {
                     showToast("Регистрация успешна!");
-                    startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                    startActivity(new Intent(RegisterActivity.this, MainActivity.class));
                     overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                 });
             }
@@ -234,6 +239,18 @@ public class RegisterActivity extends AppCompatActivity {
                             View.SYSTEM_UI_FLAG_FULLSCREEN
             );
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            getWindow().getAttributes().layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+        }
+    }
+
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        hideSystemUI();
     }
 
     private boolean isNetworkAvailable() {

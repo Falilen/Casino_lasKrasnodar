@@ -6,125 +6,136 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FF0F1A3D"
-    android:padding="0dp"
+    android:fitsSystemWindows="false"
     tools:context=".LoginActivity">
 
-    <!-- Фоновое изображение слева по центру -->
-
     <ImageView
-        android:id="@+id/imageView4"
-        android:layout_width="130dp"
-        android:layout_height="130dp"
-        android:alpha="0.4"
-        android:src="@drawable/galka"
-        android:translationX="250dp"
-        android:translationY="175dp"
-        app:layout_constraintBottom_toTopOf="@+id/my_image"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="100dp" />
-
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="376dp"
-        android:layout_height="393dp"
-        android:src="@drawable/cards_right"
-        android:translationX="20dp"
+        android:id="@+id/background_right"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:alpha="0.6"
+        android:scaleType="centerCrop"
+        android:src="@drawable/cards_right"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.4" />
 
     <ImageView
-        android:id="@+id/my_image"
-        android:layout_width="351dp"
-        android:layout_height="392dp"
+        android:id="@+id/background_left"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:alpha="0.5"
+        android:scaleType="centerCrop"
         android:src="@drawable/cards_left"
-        android:translationX="-20dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.4" />
 
-    <!-- Основной контент -->
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="600dp">
 
         <!-- Заголовок -->
         <TextView
+            android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="28dp"
             android:text="Вход"
-            android:textColor="#FFFFFFFF"
+            android:textColor="#FFFFFF"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <!-- Поле Email -->
-        <FrameLayout
-            android:layout_width="300dp"
+        <EditText
+            android:id="@+id/email_input"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:background="@drawable/edittext_background">
-
-            <EditText
-                android:id="@+id/email_input"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@null"
-                android:gravity="left"
-                android:hint="E-mail"
-                android:inputType="textEmailAddress"
-                android:padding="16dp"
-                android:textColor="#FFFFFF"
-                android:textColorHint="#80FFFFFF" />
-        </FrameLayout>
+            android:background="@drawable/edittext_background"
+            android:hint="E-mail"
+            android:inputType="textEmailAddress"
+            android:padding="16dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#80FFFFFF"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            app:layout_constraintWidth_percent="0.7"
+            android:layout_marginTop="20dp"/>
 
         <!-- Поле Пароля -->
-        <FrameLayout
-            android:layout_width="300dp"
+        <EditText
+            android:id="@+id/password_input"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="22dp"
-            android:background="@drawable/edittext_background">
-
-            <EditText
-                android:id="@+id/password_input"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@null"
-                android:gravity="left"
-                android:hint="Пароль"
-                android:inputType="textPassword"
-                android:padding="16dp"
-                android:textColor="#FFFFFFFF"
-                android:textColorHint="#80FFFFFF" />
-        </FrameLayout>
+            android:background="@drawable/edittext_background"
+            android:hint="Пароль"
+            android:inputType="textPassword"
+            android:padding="16dp"
+            android:textColor="#FFFFFFFF"
+            android:textColorHint="#80FFFFFF"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/email_input"
+            app:layout_constraintWidth_percent="0.7"
+            android:layout_marginTop="20dp"/>
 
         <!-- Кнопка -->
         <Button
             android:id="@+id/login_button"
-            android:layout_width="300dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:backgroundTint="#FFFF5722"
             android:paddingVertical="16dp"
             android:text="Войти"
             android:textColor="#FFFFFFFF"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/password_input"
+            app:layout_constraintWidth_percent="0.7"
+            android:layout_marginTop="20dp"/>
 
+        <!-- Ссылка на регистрацию -->
         <TextView
             android:id="@+id/register_link"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="16dp"
-            android:text="Назад"
+            android:layout_marginTop="16dp"
+            android:text="Нет аккаунта? Зарегистрироваться"
             android:textColor="@color/white"
-            android:textColorLink="@color/blue" />
-    </LinearLayout>
+            android:textColorLink="@color/blue"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/login_button"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Guideline для ограничения зоны контента -->
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.15"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.85"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout> <!-- Закрываем main_content -->
+
+</androidx.constraintlayout.widget.ConstraintLayout> <!-- Закрываем корневой ConstraintLayout -->

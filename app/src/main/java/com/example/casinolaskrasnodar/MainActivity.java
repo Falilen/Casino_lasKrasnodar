@@ -9,6 +9,8 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -25,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import android.media.AudioAttributes;
 
 import com.example.casinolaskrasnodar.ImageViewScrolling.IEventEnd;
 import com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling;
@@ -35,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MainActivity extends AppCompatActivity implements IEventEnd {
 
@@ -46,7 +50,11 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
 
 
 
-    private List<AnimatorSet> activeAnimations = new ArrayList<>();
+    private final List<AnimatorSet> activeAnimations = new CopyOnWriteArrayList<>();
+
+    private MediaPlayer mediaPlayer;
+    private SoundPool soundPool;
+    private int winSoundId;
 
 
     // UI элементы
@@ -64,16 +72,16 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
 
 
 
-    // Добавьте в начало класса
+
     private static final int[][] SLOT_MAP = {
             // Ряд 0 (верхний)
-            {0, 1, 2, 9, 12},  // Индексы 0,1,2,9,12 → колонки 0-4
+            {0, 1, 2, 9, 12},
 
             // Ряд 1 (средний)
-            {3, 4, 5, 10, 13}, // Индексы 3,4,5,10,13 → колонки 0-4
+            {3, 4, 5, 10, 13},
 
             // Ряд 2 (нижний)
-            {6, 7, 8, 11, 14}  // Индексы 6,7,8,11,14 → колонки 0-4
+            {6, 7, 8, 11, 14}
     };
     // Выигрышные линии
     private final int[][][] WIN_LINES = {
@@ -87,15 +95,33 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
             {{2,0}, {1,1}, {0,2}, {1,3}, {2,4}},
 
             // Дополнительные линии
+
+
+            {{0,0}, {0,1}, {1,2}, {0,3}, {0,4}},
+            {{2,0}, {2,1}, {1,2}, {2,3}, {2,4}},
+
+            {{1,0}, {0,1}, {0,2}, {0,3}, {1,4}},
+            {{1,0}, {2,1}, {2,2}, {2,3}, {1,4}},
+
+            {{1,0}, {0,1}, {1,2}, {0,3}, {1,4}},
+            {{1,0}, {2,1}, {1,2}, {2,3}, {1,4}},
+
             {{0,0}, {1,1}, {0,2}, {1,3}, {0,4}},
-            {{2,0}, {1,1}, {2,2}, {1,3}, {2,4}}
+            {{2,0}, {1,1}, {2,2}, {1,3}, {2,4}},
+
+            {{1,0}, {1,1}, {0,2}, {1,3}, {1,4}},
+            {{1,0}, {1,1}, {2,2}, {1,3}, {1,4}}
+
+
+
+
     };
 
     // Платёжная таблица
     private final Map<Integer, Integer> PAY_TABLE = new HashMap<Integer, Integer>() {{
-        put(3, 50);
-        put(4, 100);
-        put(5, 200);
+        put(3, 200);
+        put(4, 400);
+        put(5, 1000);
     }};
 
     @Override
@@ -104,19 +130,41 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
         supabaseManager = new SupabaseManager();
         checkAuth();
 
+
+
+        AudioAttributes attributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
+
+        soundPool = new SoundPool.Builder()
+                .setMaxStreams(3)
+                .setAudioAttributes(attributes)
+                .build();
+
+        // Загрузка звука
+        winSoundId = soundPool.load(this, R.raw.win_sound, 1);
+
+
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.casino_music); // ← Перенесено
+        mediaPlayer.setLooping(true);
+        mediaPlayer.setVolume(0.5f, 0.5f);
+        initMusic();
+
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
 
 
-
         winLineView = findViewById(R.id.winLineView);
         setupSlotDimensions();
         hideSystemUI();
-
+        loadUserBalance();
         initViews();
         setupSpinButton();
+
 
 
 
@@ -124,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
         View overlay = findViewById(R.id.overlay);
 
 
-        // Показываем меню правильно
+
         findViewById(R.id.btn_menu).setOnClickListener(v -> {
             sideMenu.setVisibility(View.VISIBLE);
             sideMenu.animate()
@@ -154,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
                     .start();
         });
 
-        // В MainActivity
+
         findViewById(R.id.menu_slots).setOnClickListener(v -> {
             // Обработка перехода к слотам
         });
@@ -275,6 +323,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
                 // Берем только совпавшую часть линии
                 int[][] winningPart = Arrays.copyOf(line, matched);
                 currentWinningLines.add(winningPart);
+                soundPool.play(winSoundId, 1.0f, 1.0f, 0, 0, 1.0f);
 
                 totalWin += PAY_TABLE.get(matched);
                 logWinningLine(winningPart, grid);
@@ -287,11 +336,12 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
             updateBalanceOnServer(Common.SCORE);
             txtWin.setText(totalWin + "$");
             txtScore.setText(String.valueOf(Common.SCORE) + "$");
-            Toast.makeText(this, "Выигрыш: $" + totalWin, Toast.LENGTH_LONG).show();
+            Log.e("checkWin", "Выигрыш: $" + totalWin);
         } else {
-            Toast.makeText(this, "Попробуйте ещё раз", Toast.LENGTH_SHORT).show();
+
         }
     }
+
 
     private void showWinAnimations() {
 
@@ -356,8 +406,9 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
 
 
     private void stopAnimations() {
+        List<AnimatorSet> animationsCopy = new ArrayList<>(activeAnimations);
         // Останавливаем все активные анимации
-        for (AnimatorSet animator : activeAnimations) {
+        for (AnimatorSet animator : animationsCopy) {
             if (animator != null && animator.isRunning()) {
                 animator.cancel();
             }
@@ -427,6 +478,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
             public void onSuccess(String response) {
                 runOnUiThread(() -> {
                     Toast.makeText(MainActivity.this, "Баланс обновлен", Toast.LENGTH_SHORT).show();
+                    Log.e("updateBalanceOnServer", "Баланс обновлен");
                 });
             }
 
@@ -450,7 +502,82 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
     }
 
 
+    private void loadUserBalance() {
+        if (Common.AUTH_TOKEN == null) return;
+
+        supabaseManager.fetchUserBalance(Common.AUTH_TOKEN, new SupabaseManager.SupabaseCallback() {
+            @Override
+            public void onSuccess(String balance) {
+                runOnUiThread(() -> {
+                    Common.SCORE = Integer.parseInt(balance);
+                    txtScore.setText(Common.SCORE + "$");
+                    btnSpin.setEnabled(Common.SCORE >= SPIN_COST);
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                runOnUiThread(() -> {
+                    if (e.getMessage().contains("Пользователь не найден")) {
+                        Log.e("uuuuu", "Конченная мразота");
+                    } else {
+                        Toast.makeText(MainActivity.this,
+                                "Ошибка загрузки баланса",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
 
 
+    private void initMusic() {
+        if (mediaPlayer != null) {
+            mediaPlayer.start();
+        } else {
+            Log.e("MusicError", "MediaPlayer not initialized");
+        }
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause(); // Пауза при сворачивании
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
+            mediaPlayer.start(); // Возобновление при возврате
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Остановка и освобождение при закрытии
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Остановка музыки при нажатии "Назад"
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+        super.onBackPressed();
+    }
 }
+
+
+
+

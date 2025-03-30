@@ -10,6 +10,8 @@ import android.os.Looper;
 import android.util.Base64;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -335,17 +337,19 @@ public class SupabaseManager {
 
         try {
             Log.d("SupabaseDebug", "Parsing auth token...");
+
             String authId = parseAuthIdFromToken(authToken);
+
             Log.d("SupabaseDebug", "Parsed auth_id: " + authId);
 
             String url = SUPABASE_URL + "rpc/update_balance";
+
             Log.d("SupabaseDebug", "Final request URL: " + url);
 
             JsonObject json = new JsonObject();
             json.addProperty("user_auth_id", authId);
             json.addProperty("new_balance", newBalance);
-            String jsonBody = json.toString();
-            Log.d("SupabaseDebug", "Request body: " + jsonBody);
+
 
             Request request = new Request.Builder()
                     .url(url)
@@ -353,6 +357,7 @@ public class SupabaseManager {
                     .addHeader("apikey", API_KEY)
                     .addHeader("Authorization", "Bearer " + API_KEY) // Используйте API_KEY для service_role
                     .addHeader("Content-Type", "application/json")
+                    .addHeader("Prefer", "params=multiple-objects")
                     .build();
 
             Log.d("SupabaseDebug", "Executing request...");
@@ -373,8 +378,6 @@ public class SupabaseManager {
                         Log.d("SupabaseDebug", "Response body: " + bodyContent);
 
                         if (response.isSuccessful()) {
-                            // Функция возвращает void, поэтому тело ответа пустое
-                            Log.i("SupabaseDebug", "Balance updated successfully");
                             mainHandler.post(() -> callback.onSuccess("Balance updated"));
                         } else {
                             Log.e("SupabaseDebug", "Update failed");
@@ -386,8 +389,50 @@ public class SupabaseManager {
             });
 
         } catch (Exception e) {
-            Log.e("SupabaseDebug", "Critical error: ", e);
             mainHandler.post(() -> callback.onError(e));
         }
     }
+
+
+    public void fetchUserBalance(String authToken, SupabaseCallback callback) {
+        try {
+            String authId = parseAuthIdFromToken(authToken);
+
+            // Используйте service_role ключ для доступа к данным
+            Request request = new Request.Builder()
+                    .url(SUPABASE_URL + "users?auth_id=eq." + authId + "&select=balance")
+                    .addHeader("apikey", API_KEY)
+                    .addHeader("Authorization", "Bearer " + API_KEY) // ← Исправлено
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    Log.e("ляяя",  "чука");
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) {
+                    try (ResponseBody body = response.body()) {
+                        if (!response.isSuccessful()) {
+                            throw new Exception("HTTP " + response.code());
+                        }
+
+                        JsonArray users = new Gson().fromJson(body.string(), JsonArray.class);
+                        if (users.size() == 0) {
+                            throw new Exception("Пользователь не найден");
+                        }
+
+                        int balance = users.get(0).getAsJsonObject().get("balance").getAsInt();
+                        callback.onSuccess(String.valueOf(balance));
+                    } catch (Exception e) {
+                        callback.onError(e);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            callback.onError(e);
+        }
+    }
+
 }
