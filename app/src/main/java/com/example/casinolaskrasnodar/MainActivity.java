@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,7 +69,10 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
     // Логика игры
     private int countDone = 0;
     private final int TOTAL_SLOTS = 15;
-    private final int SPIN_COST = 50;
+    private int SPIN_COST = 50;
+
+
+    private TextView txtBet;
 
 
 
@@ -128,7 +132,6 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
     protected void onCreate(Bundle savedInstanceState) {
 
         supabaseManager = new SupabaseManager();
-        checkAuth();
 
 
 
@@ -173,6 +176,9 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
 
 
 
+
+
+
         findViewById(R.id.btn_menu).setOnClickListener(v -> {
             sideMenu.setVisibility(View.VISIBLE);
             sideMenu.animate()
@@ -201,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
                     .withEndAction(() -> overlay.setVisibility(View.GONE))
                     .start();
         });
+
 
 
         findViewById(R.id.menu_slots).setOnClickListener(v -> {
@@ -241,6 +248,25 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
         txtScore = findViewById(R.id.txt_score);
         txtWin =  findViewById(R.id.txt_win);
 
+        txtBet = findViewById(R.id.txt_bet);
+        ImageButton btnBetUp = findViewById(R.id.btn_bet_up);
+        ImageButton btnBetDown = findViewById(R.id.btn_bet_down);
+
+
+        btnBetUp.setOnClickListener(v -> {
+            if (SPIN_COST + 50 <= Common.SCORE) {
+                SPIN_COST += 50;
+                updateBetUI();
+            }
+        });
+
+        btnBetDown.setOnClickListener(v -> {
+            if (SPIN_COST - 50 >= 50) { // Минимальная ставка 50
+                SPIN_COST -= 50;
+                updateBetUI();
+            }
+        });
+
         // Инициализация всех слотов
         int[] slotIds = {
                 R.id.image, R.id.image2, R.id.image3, R.id.image4, R.id.image5,
@@ -252,6 +278,17 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
             slots[i] = findViewById(slotIds[i]);
             slots[i].setEventEnd(this);
         }
+    }
+
+
+    private void updateBetUI() {
+        ValueAnimator animator = ValueAnimator.ofInt(txtBet.getWidth(), txtBet.getWidth() + 20);
+        animator.addUpdateListener(valueAnimator -> {
+            txtBet.getLayoutParams().width = (int) valueAnimator.getAnimatedValue();
+            txtBet.requestLayout();
+        });
+        animator.setDuration(200).start();
+        txtBet.setText(SPIN_COST + " $");
     }
 
     private void setupSpinButton() {
@@ -493,13 +530,13 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
 
 
 
-    private void checkAuth() {
-        if (Common.AUTH_TOKEN == null) {
-            Log.e("AuthCheck", "User not authenticated, redirecting...");
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-        }
-    }
+//    private void checkAuth() {
+//        if (Common.AUTH_TOKEN == null) {
+//            Log.e("AuthCheck", "User not authenticated, redirecting...");
+//            startActivity(new Intent(this, LoginActivity.class));
+//            finish();
+//        }
+//    }
 
 
     private void loadUserBalance() {

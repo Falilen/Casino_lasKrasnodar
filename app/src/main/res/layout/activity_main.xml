@@ -204,8 +204,8 @@
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_height="20dp"
+                android:layout_weight="0.8"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -214,11 +214,23 @@
 
             <!-- Ставка -->
             <LinearLayout
+                android:id="@+id/bet_controls"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="1.2"
                 android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/btn_bet_down"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_arrow"
+                    android:scaleX="-1"
+
+                    android:contentDescription="Уменьшить ставку"
+                    app:tint="#FFFFFF" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -228,12 +240,24 @@
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/txt_bet"
+                    android:layout_marginLeft="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="50 $"
                     android:textColor="#FFF"
                     android:textSize="18sp"
                     android:textStyle="bold" />
+
+                <ImageButton
+                    android:id="@+id/btn_bet_up"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_arrow"
+                    android:contentDescription="Увеличить ставку"
+                    app:tint="#FFFFFF" />
+
             </LinearLayout>
 
             <!-- Кнопка Max Bet и Spin -->
