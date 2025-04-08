@@ -77,10 +77,12 @@ public class RegisterActivity extends AppCompatActivity {
             String email = emailInput.getText().toString().trim();
             String password = passwordInput.getText().toString().trim();
 
-            if (isValid(email, password)) {
-                checkAndRegister(email, password);
-            } else {
+            if (!isEmailValid(email)) {
+                showToast("Неверный формат email");
+            } else if (!isPasswordValid(password)) {
                 showToast("Пароль должен содержать минимум 8 символов и цифру");
+            } else {
+                checkAndRegister(email, password);
             }
         });
     }
@@ -197,11 +199,13 @@ public class RegisterActivity extends AppCompatActivity {
 
 
 
+    private boolean isEmailValid(String email) {
+        return email.matches("^[\\w!#$%&'*+/=?^_`{|}~-]+(?:\\.[\\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\\w-]+\\.)+[\\w-]+$");
+    }
 
-    private boolean isValid(String email, String password) {
-        return email.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$") &&
-                password.length() >= 8 &&
-                password.matches(".*\\d.*");
+
+    private boolean isPasswordValid(String password) {
+        return password.length() >= 8 && password.matches(".*\\d.*");
     }
 
     private void showToast(String message) {

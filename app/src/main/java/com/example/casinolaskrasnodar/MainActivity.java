@@ -123,9 +123,9 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
 
     // Платёжная таблица
     private final Map<Integer, Integer> PAY_TABLE = new HashMap<Integer, Integer>() {{
-        put(3, 200);
-        put(4, 400);
-        put(5, 1000);
+        put(3, SPIN_COST*3);
+        put(4, SPIN_COST*5);
+        put(5, SPIN_COST*10);
     }};
 
     @Override
@@ -256,6 +256,8 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
         btnBetUp.setOnClickListener(v -> {
             if (SPIN_COST + 50 <= Common.SCORE) {
                 SPIN_COST += 50;
+
+                updatePayTable();
                 updateBetUI();
             }
         });
@@ -263,6 +265,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
         btnBetDown.setOnClickListener(v -> {
             if (SPIN_COST - 50 >= 50) { // Минимальная ставка 50
                 SPIN_COST -= 50;
+                updatePayTable();
                 updateBetUI();
             }
         });
@@ -280,14 +283,16 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
         }
     }
 
+    private void updatePayTable() {
+        PAY_TABLE.clear();
+        PAY_TABLE.put(3, SPIN_COST * 3);
+        PAY_TABLE.put(4, SPIN_COST * 5);
+        PAY_TABLE.put(5, SPIN_COST * 10);
+    }
+
 
     private void updateBetUI() {
-        ValueAnimator animator = ValueAnimator.ofInt(txtBet.getWidth(), txtBet.getWidth() + 20);
-        animator.addUpdateListener(valueAnimator -> {
-            txtBet.getLayoutParams().width = (int) valueAnimator.getAnimatedValue();
-            txtBet.requestLayout();
-        });
-        animator.setDuration(200).start();
+
         txtBet.setText(SPIN_COST + " $");
     }
 
@@ -514,7 +519,6 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
             @Override
             public void onSuccess(String response) {
                 runOnUiThread(() -> {
-                    Toast.makeText(MainActivity.this, "Баланс обновлен", Toast.LENGTH_SHORT).show();
                     Log.e("updateBalanceOnServer", "Баланс обновлен");
                 });
             }

@@ -47,8 +47,8 @@ public class ImageViewScrolling extends FrameLayout {
 
     private void init(Context context) {
         LayoutInflater.from(context).inflate(R.layout.image_view_scrolling,this);
-        current_image = (ImageView)getRootView().findViewById(R.id.current_image);
-        next_image = (ImageView)getRootView().findViewById(R.id.next_image);
+        current_image = findViewById(R.id.current_image);
+        next_image =  findViewById(R.id.next_image);
 
         getViewTreeObserver().addOnGlobalLayoutListener(() -> {
             next_image.setTranslationY(getHeight());
@@ -137,7 +137,9 @@ public class ImageViewScrolling extends FrameLayout {
             imageView.setImageResource(R.drawable.b4);
         } else if (value == Util.TRIPLE) {
             imageView.setImageResource(R.drawable.b5);
-        } else {
+        } else if (value == Util.SUPER_SYMBOL){
+            imageView.setImageResource(R.drawable.free_spin);
+        }else {
             imageView.setImageResource(R.drawable.b6);
         }
 
