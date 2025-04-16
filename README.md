@@ -3,7 +3,12 @@
 <img src="https://i.imgur.com/lYnbOQ5.png" alt="Banner" width="500" height="500" /> 
 **Ваш карманный азарт!** Играйте в слоты и блэкджек в любое время и в любом месте.  
 *Только для развлечения — без реальных ставок!*
+
 https://stackoverflow.com/questions/27319821/video-with-transparency-on-android
+
+
+https://medium.com/go-electra/unlock-transparency-in-videos-on-android-5dc43776cc72
+
 [![Google Play](https://img.shields.io/badge/Google_Play-414141?style=for-the-badge&logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=YOUR_PACKAGE_NAME)  
 *(Ссылка будет доступна после публикации в Google Play)*
 
