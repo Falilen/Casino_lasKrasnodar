@@ -9,4 +9,26 @@
     <color name="blue">#1FF5FF</color>
     <color name="gray">#7B2D3131</color>
 
+
+    <!-- Основные цвета -->
+    <color name="dark_magic_background">#1A1A2F</color>
+    <color name="dialog_stroke">#30FFFFFF</color>
+    <color name="gold">#FFD700</color>
+    <color name="gold_dark">#FFA500</color>
+    <color name="white_87">#DEFFFFFF</color>
+    <color name="button_ripple">#40FFFFFF</color>
+
+    <!-- Градиенты (для API 24+) -->
+    <color name="gold_gradient_start">#FFD700</color>
+    <color name="gold_gradient_end">#FFA500</color>
+
+    <!-- Тени -->
+    <color name="text_shadow">#88000000</color>
+    <color name="element_glow">#30FFD700</color>
+
+    <!-- Прогресс-бар -->
+    <color name="progress_background">#334F4F4F</color>
+    <color name="progress_fill_start">#FF6B6B</color>
+    <color name="progress_fill_end">#FFA500</color>
+
 </resources>

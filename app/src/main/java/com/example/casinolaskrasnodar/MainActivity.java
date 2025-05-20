@@ -9,26 +9,43 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.drawable.ColorDrawable;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.Window;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.example.casinolaskrasnodar.ImageViewScrolling.Util;
 import com.example.casinolaskrasnodar.SupabaseManager;
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import android.media.AudioAttributes;
+import android.widget.VideoView;
+
 
 import com.example.casinolaskrasnodar.ImageViewScrolling.IEventEnd;
 import com.example.casinolaskrasnodar.ImageViewScrolling.ImageViewScrolling;
@@ -41,7 +58,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+
+
 public class MainActivity extends AppCompatActivity implements IEventEnd {
+
+
 
 
     private SupabaseManager supabaseManager;
@@ -59,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
 
 
     // UI элементы
+
     private Button btnSpin;
     private TextView txtScore;
     private TextView txtWin;
@@ -123,9 +145,9 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
 
     // Платёжная таблица
     private final Map<Integer, Integer> PAY_TABLE = new HashMap<Integer, Integer>() {{
-        put(3, SPIN_COST*3);
-        put(4, SPIN_COST*5);
-        put(5, SPIN_COST*10);
+        put(3, SPIN_COST);
+        put(4, SPIN_COST*3);
+        put(5, SPIN_COST*5);
     }};
 
     @Override
@@ -169,6 +191,11 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
         setupSpinButton();
 
 
+
+//        Glide.with(this)
+//                .asGif()
+//                .load(R.drawable.witch_attack4) // Укажите вашу анимацию
+//                .into(witchCharacter);
 
 
         View sideMenu = findViewById(R.id.side_menu);
@@ -246,12 +273,19 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
     private void initViews() {
         btnSpin = findViewById(R.id.btn_up);
         txtScore = findViewById(R.id.txt_score);
-        txtWin =  findViewById(R.id.txt_win);
 
+
+
+
+
+
+
+
+
+        txtWin =  findViewById(R.id.txt_win);
         txtBet = findViewById(R.id.txt_bet);
         ImageButton btnBetUp = findViewById(R.id.btn_bet_up);
         ImageButton btnBetDown = findViewById(R.id.btn_bet_down);
-
 
         btnBetUp.setOnClickListener(v -> {
             if (SPIN_COST + 50 <= Common.SCORE) {
@@ -298,15 +332,23 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
 
     private void setupSpinButton() {
         btnSpin.setOnClickListener(v -> {
-            if(Common.SCORE >= SPIN_COST) {
-                startSpin();
-            } else {
-                Toast.makeText(this, "Недостаточно средств", Toast.LENGTH_SHORT).show();
-            }
+                startSpin(false);
+
         });
     }
 
-    private void startSpin() {
+    private void startSpin(boolean isFreeSpin) {
+
+
+        if(!isFreeSpin && Common.SCORE < SPIN_COST) {
+            Toast.makeText(this, "Недостаточно средств", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(!isFreeSpin) {
+            Common.SCORE -= SPIN_COST;
+            updateBalanceOnServer(Common.SCORE);
+        }
 
         stopAnimations(); // Добавить в начало метода
 
@@ -320,9 +362,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
 
         // Блокируем кнопку на время анимации
         btnSpin.setEnabled(false);
-        Common.SCORE -= SPIN_COST;
-        txtScore.setText(String.valueOf(Common.SCORE) + "$");
-        updateBalanceOnServer(Common.SCORE);
+        txtScore.setText(Common.SCORE + "$");
 
         // Генерируем общее количество вращений
         int spinCount = 5 + new Random().nextInt(5);
@@ -333,7 +373,7 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
         }
 
         // Разблокируем кнопку через 3.5 секунды
-        new Handler().postDelayed(() -> btnSpin.setEnabled(true), 1100);
+        new Handler().postDelayed(() -> btnSpin.setEnabled(true), 1000);
     }
 
     @Override
@@ -359,6 +399,17 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
         currentWinningLines.clear();
         int totalWin = 0;
 
+
+        int freeSpinCount = countFreeSpins(grid);
+        if (freeSpinCount >= 3) {
+
+            btnSpin.setEnabled(false);
+
+            showSuperGameDialog();
+            Log.e("ХАйп", "БОООНУСКА");
+            return; // Прерываем дальнейшую проверку выигрышей
+        }
+
         for(int[][] line : WIN_LINES) {
             int matched = checkLine(grid, line);
             if(matched >= 3) {
@@ -382,6 +433,19 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
         } else {
 
         }
+    }
+
+    private int countFreeSpins(int[][] grid) {
+        int count = 0;
+        for (int[] row : grid) {
+            for (int symbol : row) {
+                if (symbol == Util.SUPER_SYMBOL) { // Проверка на символ free spin
+                    count++;
+                }
+            }
+        }
+        Log.d("FREE_SPIN_DEBUG", "Количество free spins: " + count);
+        return count;
     }
 
 
@@ -617,7 +681,128 @@ public class MainActivity extends AppCompatActivity implements IEventEnd {
         }
         super.onBackPressed();
     }
+
+    private int[][] getLastSpinResults() {
+        int[][] grid = new int[3][5]; // Матрица 3x5
+
+        // Заполняем матрицу значениями из слотов
+        for (int i = 0; i < slots.length; i++) {
+            int row = i / 5; // Номер строки (0, 1, 2)
+            int col = i % 5; // Номер столбца (0, 1, 2, 3, 4)
+            grid[row][col] = slots[i].getValue(); // Текущее значение слота
+        }
+
+        return grid;
+    }
+
+    private void startSuperGame() {
+        Log.d("SUPER_GAME", "Запуск супер игры");
+        Common.IS_SUPER_GAME = true;
+
+        // Остановите текущие анимации
+        stopAnimations();
+        int savedBalance = Common.SCORE;
+
+        int[][] lastSpinResults = getLastSpinResults();
+
+        // Запускаем новую активность для бонусной игры
+        Intent intent = new Intent(this, MainActivity_bonus.class);
+        intent.putExtra("LAST_SPIN_RESULTS", lastSpinResults);
+        intent.putExtra("BALANCE", savedBalance);
+        intent.putExtra("BET_VALUE", SPIN_COST); // Добавляем ставку
+        startActivity(intent);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+
+        // Закрываем текущую активность
+        finish();
+
+
+
+
+        VideoView videoView = findViewById(R.id.witch_character);
+        if (videoView != null) {
+            Uri videoUri = Uri.parse(
+                    "android.resource://" + getPackageName() + "/" + R.raw.witch_attack
+            );
+            videoView.setVideoURI(videoUri);
+            videoView.start();
+        } else {
+            Log.e("VideoError", "VideoView не найден в activity_bonus_game.xml");
+        }
+
+        // Добавьте спецэффекты
+        winLineView.startSuperAnimation();
+        mediaPlayer.pause(); // Приглушаем фоновую музыку
+        int superGameSoundId = soundPool.load(this, R.raw.super_game, 1);
+        soundPool.play(superGameSoundId, 1f, 1f, 0, 0, 1f); // Новый звук
+
+
+
+    }
+
+    // В MainActivity.java
+    private void showSuperGameDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.DialogTheme);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_super_game, null);
+        builder.setView(dialogView);
+
+        // Анимация заголовка
+        TextView title = dialogView.findViewById(R.id.title);
+        title.animate()
+                .alpha(1f)
+                .setDuration(500)
+                .setInterpolator(new DecelerateInterpolator())
+                .start();
+
+        // Анимация кнопки
+        Button button = dialogView.findViewById(R.id.action_button);
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(button, "scaleX", 0.9f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(button, "scaleY", 0.9f, 1f);
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(scaleX, scaleY);
+        set.setDuration(800);
+        set.setInterpolator(new AccelerateDecelerateInterpolator());
+        set.start();
+
+        // Создаем диалог
+        AlertDialog dialog = builder.create();
+
+        // Блокируем закрытие диалога
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+
+        // Настройка прозрачного фона и анимации
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
+
+        // Обработчик нажатия на кнопку
+        button.setOnClickListener(v -> {
+            // Запуск бонусной игры
+            startSuperGame();
+            dialog.dismiss(); // Закрываем диалог после нажатия
+        });
+
+        // Показываем диалог с проверкой
+        if (!isFinishing() && !isDestroyed()) {
+            dialog.show();
+        }
+
+        dialog.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        // Очищаем ресурсы
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+        super.onDestroy();
+    }
+
 }
+
+
 
 
 

@@ -1,0 +1,77 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="24dp"
+    android:maxWidth="400dp"
+    android:orientation="vertical"
+    android:background="@drawable/dialog_background"
+    android:padding="26dp"
+
+    android:gravity="center_horizontal">
+
+
+
+
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="✨ МАГИЧЕСКИЙ РЕЖИМ! \n 15 FREESPINS"
+        android:textColor="@color/gold"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:shadowColor="@color/text_shadow"
+        android:shadowRadius="8"
+
+        android:fontFamily="sans-serif-condensed"/>
+
+
+    <TextView
+        android:id="@+id/message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:lineSpacingExtra="2dp"
+        android:gravity="center"
+        android:text="Собирайте мётлы\nдля активации способностей ведьмы!"
+        android:textColor="@color/white_87"
+        android:textSize="16sp"
+        android:fontFamily="sans-serif-medium"/>
+
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="@style/MagicProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="12dp"
+        android:layout_marginTop="15dp"
+        android:max="5"
+        android:progress="5"/>
+    <TextView
+        android:id="@+id/message2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:lineSpacingExtra="2dp"
+        android:gravity="center"
+        android:text="Заполненная шкала удалит\n 1 возможный символ для выпадения "
+        android:textColor="@color/white_87"
+        android:textSize="16sp"
+        android:fontFamily="sans-serif-medium"/>
+
+    <Button
+        android:id="@+id/action_button"
+        android:layout_width="200dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="24dp"
+        android:text="АКТИВИРОВАТЬ"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_gold_gradient"
+        android:stateListAnimator="@anim/button_scale"/>
+
+</LinearLayout>

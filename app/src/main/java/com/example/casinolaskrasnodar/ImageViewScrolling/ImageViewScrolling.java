@@ -1,9 +1,12 @@
 package com.example.casinolaskrasnodar.ImageViewScrolling;
 
+import static com.example.casinolaskrasnodar.ImageViewScrolling.Util.getRandomBonusSymbol;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -16,6 +19,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.casinolaskrasnodar.Common;
 import com.example.casinolaskrasnodar.R;
 import java.util.Random;
 
@@ -45,10 +49,25 @@ public class ImageViewScrolling extends FrameLayout {
         init(context);
     }
 
+    public void setValue(int value) {
+        // Устанавливаем тег до изменения изображения
+        current_image.setTag(value);
+        setImage(current_image, value);
+
+        // Сбрасываем анимацию
+        current_image.setTranslationY(0);
+        next_image.setTranslationY(-next_image.getHeight());
+    }
+
     private void init(Context context) {
         LayoutInflater.from(context).inflate(R.layout.image_view_scrolling,this);
         current_image = findViewById(R.id.current_image);
         next_image =  findViewById(R.id.next_image);
+
+        Random random = new Random();
+        int initialValue = random.nextInt(6); // 0-5 для обычных символов
+        setImage(current_image, initialValue);
+        setImage(next_image, random.nextInt(6));
 
         getViewTreeObserver().addOnGlobalLayoutListener(() -> {
             next_image.setTranslationY(getHeight());
@@ -57,11 +76,11 @@ public class ImageViewScrolling extends FrameLayout {
 }
 
     public void SetValueRandom(int rotate_count) {
-        if (isAnimating) return;
+        if (isAnimating) return; // Защита от повторного вызова
         isAnimating = true;
 
         Random random = new Random();
-        int image = random.nextInt(6);
+        int image = Common.IS_SUPER_GAME ? Util.getRandomSymbol() : random.nextInt(6);
 
         // Скрыть next_image перед началом анимации
         next_image.setVisibility(View.INVISIBLE);
@@ -69,30 +88,30 @@ public class ImageViewScrolling extends FrameLayout {
 
         // Анимация текущего изображения вниз
         current_image.animate()
-                .translationY(getHeight())
+                .translationY(getHeight()) // Двигаем вниз за пределы экрана
                 .setDuration(ANIMATION_DUR)
                 .withEndAction(() -> {
                     // После завершения анимации:
-                    current_image.setVisibility(View.INVISIBLE); // Скрыть текущее
-                    setImage(current_image, image); // Обновить изображение
-                    current_image.setTranslationY(0);
+                    current_image.setVisibility(View.INVISIBLE); // Скрываем текущее
+                    setImage(current_image, image); // Обновляем изображение
+                    current_image.setTranslationY(0); // Сброс позиции
                 })
                 .start();
 
         // Настройка следующего изображения
-        next_image.setTranslationY(-next_image.getHeight());
-        setImage(next_image, random.nextInt(6));
+        setImage(next_image, image);
+        next_image.setTranslationY(-next_image.getHeight()); // Начальная позиция над экраном
         next_image.setVisibility(View.VISIBLE); // Показать следующее
 
         // Анимация следующего изображения вверх
         next_image.animate()
-                .translationY(0)
+                .translationY(0) // Двигаем в центр
                 .setDuration(ANIMATION_DUR)
                 .setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        next_image.setVisibility(View.INVISIBLE); // Скрыть следующее
-                        current_image.setVisibility(View.VISIBLE); // Показать обновленное текущее
+                        next_image.setVisibility(View.INVISIBLE); // Скрываем следующее
+                        current_image.setVisibility(View.VISIBLE); // Показываем обновленное текущее
                         isAnimating = false;
 
                         if (old_value < rotate_count - 1) {
@@ -125,34 +144,30 @@ public class ImageViewScrolling extends FrameLayout {
 
 
     private void setImage(ImageView imageView, int value) {
-        imageView.setVisibility(View.VISIBLE);
+        if (imageView == null) return;
 
-        if (value == Util.BAR) {
-            imageView.setImageResource(R.drawable.b2);
-        } else if (value == Util.SEVEN) {
-            imageView.setImageResource(R.drawable.b1);
-        } else if (value == Util.LEMON) {
-            imageView.setImageResource(R.drawable.b3);
-        } else if (value == Util.ORANGE) {
-            imageView.setImageResource(R.drawable.b4);
-        } else if (value == Util.TRIPLE) {
-            imageView.setImageResource(R.drawable.b5);
-        } else if (value == Util.SUPER_SYMBOL){
-            imageView.setImageResource(R.drawable.free_spin);
-        }else {
-            imageView.setImageResource(R.drawable.b6);
+        switch (value) {
+            case Util.BAR: imageView.setImageResource(R.drawable.b2); break;
+            case Util.SEVEN: imageView.setImageResource(R.drawable.b1); break;
+            case Util.LEMON: imageView.setImageResource(R.drawable.b3); break;
+            case Util.ORANGE: imageView.setImageResource(R.drawable.b4); break;
+            case Util.TRIPLE: imageView.setImageResource(R.drawable.b5); break;
+            case Util.SUPER_SYMBOL: imageView.setImageResource(R.drawable.free_spin); break;
+            case Util.BROOMSTICK:
+                imageView.setImageResource(R.drawable.broomstick);
+                break;
+            default: imageView.setImageResource(R.drawable.b6);
         }
 
         imageView.setTag(value);
-        lat_result = value;
     }
 
     public int getValue() {
-        // Возвращаем значение из current_image, а не next_image
+        // Берем значение из current_image, а не next_image
         if (current_image.getTag() != null) {
-            return Integer.parseInt(current_image.getTag().toString());
+            return (int) current_image.getTag();
         }
-        return -1; // Значение по умолчанию при ошибке
+        return -1;
     }
 
 

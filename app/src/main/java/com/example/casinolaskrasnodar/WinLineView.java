@@ -1,5 +1,7 @@
 package com.example.casinolaskrasnodar;
 
+import android.animation.ObjectAnimator;
+import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -8,7 +10,12 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.animation.ValueAnimator;
+import android.graphics.Color;
+import android.animation.ArgbEvaluator;
 import android.view.View;
+
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,4 +87,17 @@ public class WinLineView extends View {
         });
         animator.start();
     }
+
+    public void startSuperAnimation() {
+        ValueAnimator colorAnim = ObjectAnimator.ofInt(
+                this, "backgroundColor",
+                Color.TRANSPARENT, Color.YELLOW, Color.TRANSPARENT
+        );
+        colorAnim.setDuration(1500);
+        colorAnim.setEvaluator(new ArgbEvaluator());
+        colorAnim.setRepeatCount(3);
+        colorAnim.start();
+    }
+
+
 }

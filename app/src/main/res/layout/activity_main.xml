@@ -14,6 +14,7 @@
         android:layout_height="match_parent"
         android:background="@drawable/magicbg">
 
+
         <FrameLayout
             android:id="@+id/frame_bar"
             android:layout_width="570dp"
@@ -268,26 +269,19 @@
                 android:gravity="center"
                 android:orientation="horizontal">
 
-                <!-- Кнопка Max Bet -->
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:padding="10dp"
-                    android:text="MAX BET"
-                    android:textColor="#FFF"
-                    android:textStyle="bold" />
+
 
                 <!-- Кнопка Spin -->
                 <Button
                     android:id="@+id/btn_up"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
+                    android:layout_width="200dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="0dp"
                     android:background="@drawable/spin"
                     android:padding="10dp"
 
                     android:text="SPIN"
+                    android:textSize="20dp"
                     android:textColor="#FFF"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -343,6 +337,8 @@
             </LinearLayout>
 
         </LinearLayout>
+
+
     </RelativeLayout>
 
 

@@ -83,7 +83,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-                runOnUiThread(() -> showError("Ошибка входа: " + e.getMessage())); // UI поток
+                runOnUiThread(() -> showError("Ошибка входа: Неправильный пароль")); // UI поток
             }
         });
     }
